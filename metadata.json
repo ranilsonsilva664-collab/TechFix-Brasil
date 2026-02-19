@@ -1,0 +1,7 @@
+{
+  "name": "TechFix Repair ERP",
+  "description": "A comprehensive management system for technical assistance and repair shops, featuring financial dashboards, service order kanban, customer management, and inventory tracking.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
