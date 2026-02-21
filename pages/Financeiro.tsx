@@ -15,9 +15,13 @@ interface FinanceiroProps {
   userPlan?: string;
 }
 
-const STRIPE_PRO_LINK = "https://buy.stripe.com/test_6oEcO07h4"; // Link de teste padrão
+const STRIPE_PRO_LINK = "https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800";
 
 const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense, onRemoveExpense, onDeleteOS, onToggleTheme, onLogout, isDarkMode, userPlan }) => {
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
   const [activeTab, setActiveTab] = useState('Geral');
   const [isAddingExpense, setIsAddingExpense] = useState(false);
   const [newExp, setNewExp] = useState({
@@ -26,12 +30,25 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
     amount: ''
   });
 
+  const monthNames = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
+
+  const getMonthDisplay = (monthStr: string) => {
+    const [year, month] = monthStr.split('-');
+    return `${monthNames[parseInt(month) - 1]} ${year}`;
+  };
+
   const tabs = ['Geral', 'Despesas Fixas', 'Histórico'];
 
+  // Data Filtering
+  const filteredOrders = orders.filter(o => o.createdAt && o.createdAt.startsWith(selectedMonth));
+
   // Calculations
-  const totalGrossRevenue = orders.reduce((acc, curr) => acc + (curr.value || 0), 0);
-  const totalLaborRevenue = orders.reduce((acc, curr) => acc + (curr.laborValue || 0), 0);
-  const totalPartsCosts = orders.reduce((acc, curr) => acc + (curr.partsValue || 0), 0);
+  const totalGrossRevenue = filteredOrders.reduce((acc, curr) => acc + (curr.value || 0), 0);
+  const totalLaborRevenue = filteredOrders.reduce((acc, curr) => acc + (curr.laborValue || 0), 0);
+  const totalPartsCosts = filteredOrders.reduce((acc, curr) => acc + (curr.partsValue || 0), 0);
   const totalFixedExpenses = expenses.reduce((acc, curr) => acc + (curr.amount || 0), 0);
 
   // Real Profit = Labor Revenue - Fixed Expenses
@@ -81,10 +98,22 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
       <main className="p-4 space-y-6 mt-4">
         <div className="flex items-end justify-between mb-2 px-2">
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Seu Painel</h2>
-          <button className="flex items-center gap-1 text-primary text-sm font-bold active:scale-95 transition-transform">
-            Mês Atual
-            <span className="material-symbols-outlined text-sm">calendar_month</span>
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => (document.getElementById('month-picker') as HTMLInputElement)?.showPicker()}
+              className="flex items-center gap-1 text-primary text-sm font-bold active:scale-95 transition-transform"
+            >
+              {getMonthDisplay(selectedMonth)}
+              <span className="material-symbols-outlined text-sm">calendar_month</span>
+            </button>
+            <input
+              id="month-picker"
+              type="month"
+              className="absolute top-0 left-0 opacity-0 pointer-events-none"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            />
+          </div>
         </div>
 
         {/* Navigation Tabs */}
@@ -307,16 +336,16 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
             <section className="px-2 mt-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-black tracking-tight dark:text-white">Lucratividade por Serviço</h3>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Últimas OS</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">{getMonthDisplay(selectedMonth)}</span>
               </div>
               <div className="flex flex-col gap-3">
-                {orders.length > 0 ? orders.map(order => (
+                {filteredOrders.length > 0 ? filteredOrders.map(order => (
                   <div key={order.id} className="flex items-center gap-4 bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm group">
                     <div className="size-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 transition-colors group-hover:bg-emerald-100">
                       <span className="material-symbols-outlined text-2xl">trending_up</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold dark:text-white truncate">OS #{order.id} - {order.customerName}</p>
+                      <p className="text-sm font-bold dark:text-white truncate">OS #{order.id.substring(0, 6)} - {order.customerName}</p>
                       <p className="text-[10px] text-slate-500 font-black uppercase tracking-tight truncate">{order.device}</p>
                     </div>
                     <div className="text-right flex items-center gap-3">
@@ -335,7 +364,7 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
                 )) : (
                   <div className="text-center py-20 text-slate-400 flex flex-col items-center gap-4 bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-dashed border-slate-100 dark:border-slate-800">
                     <span className="material-symbols-outlined text-5xl">query_stats</span>
-                    <p className="text-xs font-bold uppercase tracking-widest px-8">Nenhum serviço finalizado para exibir lucratividade.</p>
+                    <p className="text-xs font-bold uppercase tracking-widest px-8">Nenhum serviço finalizado em {getMonthDisplay(selectedMonth)}.</p>
                   </div>
                 )}
               </div>

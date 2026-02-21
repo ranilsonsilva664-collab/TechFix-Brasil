@@ -13,16 +13,54 @@ interface ClientesProps {
   onToggleTheme?: () => void;
   onLogout?: () => void;
   isDarkMode?: boolean;
+  userPlan?: string;
 }
 
+const STRIPE_PRO_LINK = "https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800";
+
 const Clientes: React.FC<ClientesProps> = ({
-  customers, orders, onAddCustomer, onUpdateCustomer, onDeleteCustomer, onDeleteOS, onToggleTheme, onLogout, isDarkMode
+  customers, orders, onAddCustomer, onUpdateCustomer, onDeleteCustomer, onDeleteOS, onToggleTheme, onLogout, isDarkMode, userPlan
 }) => {
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('Todos');
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', cpf: '' });
   const [editCustomerData, setEditCustomerData] = useState({ name: '', phone: '', cpf: '' });
+
+  const filteredCustomers = customers.filter(c => {
+    // Search filter
+    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (c.cpf && c.cpf.includes(searchQuery));
+
+    if (!matchesSearch) return false;
+
+    // Category filter
+    if (activeFilter === 'Todos') return true;
+
+    const myOrders = orders.filter(o => o.customerName === c.name);
+
+    if (activeFilter === 'Recentes') {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      return myOrders.some(o => o.createdAt && new Date(o.createdAt) >= thirtyDaysAgo);
+    }
+
+    if (activeFilter === 'Com OS Ativa') {
+      return myOrders.some(o => o.status !== OSStatus.READY);
+    }
+
+    if (activeFilter === 'Fidelizados') {
+      return myOrders.length >= 3;
+    }
+
+    if (activeFilter === 'Prontos') {
+      return myOrders.some(o => o.status === OSStatus.READY);
+    }
+
+    return true;
+  });
 
   const handleAddCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +91,20 @@ const Clientes: React.FC<ClientesProps> = ({
     }
   };
 
+  const handleCall = () => {
+    if (selectedCustomer?.phone) {
+      window.open(`tel:${selectedCustomer.phone.replace(/\D/g, '')}`, '_self');
+    }
+  };
+
+  const handleWhatsApp = () => {
+    if (selectedCustomer?.phone) {
+      const cleanPhone = selectedCustomer.phone.replace(/\D/g, '');
+      const formattedPhone = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
+      window.open(`https://wa.me/${formattedPhone}`, '_blank');
+    }
+  };
+
   const customerOrders = selectedCustomer
     ? orders.filter(o => o.customerName === selectedCustomer.name)
     : [];
@@ -68,6 +120,22 @@ const Clientes: React.FC<ClientesProps> = ({
       />
 
       <main className="p-4 space-y-4">
+        {userPlan === 'free' && (
+          <div className="bg-gradient-to-r from-blue-600 to-primary rounded-2xl p-4 text-white flex items-center justify-between gap-3 shadow-lg">
+            <div>
+              <p className="font-black text-sm">Upgrade para Pro</p>
+              <p className="text-[11px] opacity-80">Clientes ilimitados + histórico completo</p>
+            </div>
+            <a
+              href={STRIPE_PRO_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white text-primary px-4 py-2 rounded-xl font-black text-xs shadow-md active:scale-95 transition-all whitespace-nowrap"
+            >
+              R$ 9,99/mês
+            </a>
+          </div>
+        )}
         {/* Search & Action */}
         <div className="flex gap-2">
           <div className="relative flex-1 group">
@@ -76,6 +144,8 @@ const Clientes: React.FC<ClientesProps> = ({
               className="w-full pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-900 border-none rounded-xl text-sm placeholder-slate-500 focus:ring-2 focus:ring-primary/50 transition-all dark:text-white"
               placeholder="Nome ou CPF..."
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <button
@@ -88,8 +158,12 @@ const Clientes: React.FC<ClientesProps> = ({
 
         {/* Filters */}
         <div className="flex gap-2 overflow-x-auto hide-scrollbar">
-          {['Todos', 'Recentes', 'Com OS Ativa', 'Fidelizados'].map((f, i) => (
-            <button key={f} className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${i === 0 ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400'}`}>
+          {['Todos', 'Prontos', 'Recentes', 'Com OS Ativa', 'Fidelizados'].map((f) => (
+            <button
+              key={f}
+              onClick={() => setActiveFilter(f)}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${activeFilter === f ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400'}`}
+            >
               {f}
             </button>
           ))}
@@ -97,7 +171,7 @@ const Clientes: React.FC<ClientesProps> = ({
 
         {/* List */}
         <div className="divide-y divide-slate-100 dark:divide-slate-800">
-          {customers.map((c, index) => (
+          {filteredCustomers.length > 0 ? filteredCustomers.map((c, index) => (
             <div
               key={index}
               onClick={() => setSelectedCustomer(c)}
@@ -111,7 +185,7 @@ const Clientes: React.FC<ClientesProps> = ({
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start">
                   <h3 className="font-bold truncate dark:text-white">{c.name}</h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 uppercase tracking-wider">{c.os} OS</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 uppercase tracking-wider">{orders.filter(o => o.customerName === c.name).length} OS</span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
                   <span className="material-symbols-outlined text-[14px]">call</span> {c.phone}
@@ -119,7 +193,12 @@ const Clientes: React.FC<ClientesProps> = ({
               </div>
               <span className="material-symbols-outlined text-slate-300 dark:text-slate-700">chevron_right</span>
             </div>
-          ))}
+          )) : (
+            <div className="py-20 text-center opacity-40">
+              <span className="material-symbols-outlined text-4xl mb-2">person_search</span>
+              <p className="text-xs font-bold uppercase tracking-widest">Nenhum cliente encontrado</p>
+            </div>
+          )}
         </div>
       </main>
 
@@ -208,8 +287,18 @@ const Clientes: React.FC<ClientesProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white font-semibold text-sm"><span className="material-symbols-outlined text-sm">call</span> Ligar</button>
-              <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-green-500 text-white font-semibold text-sm"><span className="material-symbols-outlined text-sm">chat</span> WhatsApp</button>
+              <button
+                onClick={handleCall}
+                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white font-semibold text-sm active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined text-sm">call</span> Ligar
+              </button>
+              <button
+                onClick={handleWhatsApp}
+                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-green-500 text-white font-semibold text-sm active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined text-sm">chat</span> WhatsApp
+              </button>
             </div>
 
             <div className="border-b border-slate-100 dark:border-slate-800 flex gap-6 mb-4">
@@ -225,7 +314,7 @@ const Clientes: React.FC<ClientesProps> = ({
                     <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
-                          <span className="text-xs font-bold text-primary">OS #{order.id}</span>
+                          <span className="text-xs font-bold text-primary">OS #{order.id.substring(0, 6)}</span>
                           <span className="text-[10px] text-slate-400">{order.timestamp}</span>
                         </div>
                         <p className="text-sm font-medium dark:text-white">{order.device}</p>

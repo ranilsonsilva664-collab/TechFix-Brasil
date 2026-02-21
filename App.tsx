@@ -65,6 +65,7 @@ const App: React.FC = () => {
   const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>([]);
   const [fixedExpenses, setFixedExpenses] = useState<FixedExpense[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [technicians, setTechnicians] = useState<any[]>([]);
   const [userProfile, setUserProfile] = useState<any>(null);
 
   // Auth initialization and Firestore subscriptions
@@ -84,6 +85,7 @@ const App: React.FC = () => {
       setServiceOrders([]);
       setFixedExpenses([]);
       setInventory([]);
+      setTechnicians([]);
       return;
     }
 
@@ -91,6 +93,7 @@ const App: React.FC = () => {
     const unsubOrders = dbService.subscribeOrders(userId, setServiceOrders);
     const unsubInventory = dbService.subscribeInventory(userId, setInventory);
     const unsubExpenses = dbService.subscribeExpenses(userId, setFixedExpenses);
+    const unsubTechnicians = dbService.subscribeTechnicians(userId, setTechnicians);
     const unsubProfile = dbService.subscribeProfile(userId, setUserProfile);
 
     return () => {
@@ -98,6 +101,7 @@ const App: React.FC = () => {
       unsubOrders();
       unsubInventory();
       unsubExpenses();
+      unsubTechnicians();
       unsubProfile();
     };
   }, [userId]);
@@ -308,9 +312,30 @@ const App: React.FC = () => {
     }
   };
 
+  // Technician Handlers
+  const handleAddTechnician = async (name: string) => {
+    if (!userId) return;
+    try {
+      await dbService.addTechnician(userId, name);
+    } catch (err: any) {
+      console.error("Failed to add technician:", err);
+      alert(`Erro ao cadastrar técnico: ${err.message}`);
+    }
+  };
+
+  const handleDeleteTechnician = async (id: string) => {
+    if (!userId) return;
+    try {
+      await dbService.deleteTechnician(userId, id);
+    } catch (err: any) {
+      console.error("Failed to delete technician:", err);
+      alert(`Erro ao excluir técnico: ${err.message}`);
+    }
+  };
+
   return (
     <HashRouter>
-      <div className="flex flex-col min-h-screen max-w-md mx-auto relative bg-background-light dark:bg-background-dark font-display transition-colors duration-300">
+      <div className="flex flex-col min-h-screen relative bg-background-light dark:bg-background-dark font-display transition-colors duration-300">
         {globalError && (
           <div className="fixed top-0 left-0 right-0 z-[200] bg-red-600 text-white p-4 text-xs font-bold flex justify-between items-center animate-in slide-in-from-top duration-300">
             <span className="flex-1">{globalError}</span>
@@ -318,13 +343,13 @@ const App: React.FC = () => {
           </div>
         )}
         <Routes>
-          <Route path="/login" element={<Login onLogin={() => { }} />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login onLogin={() => { }} />} />
+          <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
           <Route
             path="/*"
             element={
               isAuthenticated ? (
-                <>
+                <div className="flex-1 flex flex-col max-w-md mx-auto w-full relative">
                   <Routes>
                     <Route path="/" element={<Dashboard orders={serviceOrders} expenses={fixedExpenses} onOpenNewOS={() => setIsNewOSOpen(true)} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
                     <Route path="/financeiro" element={<Financeiro orders={serviceOrders} expenses={fixedExpenses} onAddExpense={handleAddExpense} onRemoveExpense={handleRemoveExpense} onDeleteOS={handleDeleteOS} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
@@ -332,7 +357,7 @@ const App: React.FC = () => {
                     <Route path="/clientes" element={<Clientes customers={customers} orders={serviceOrders} onUpdateCustomer={handleUpdateCustomer} onDeleteCustomer={handleDeleteCustomer} onDeleteOS={handleDeleteOS} onAddCustomer={handleAddCustomer} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
                     <Route path="/estoque" element={<Estoque items={inventory} onAddItem={handleAddItem} onDeleteItem={handleDeleteItem} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
                     <Route path="/success-upgrade" element={<SuccessUpgrade />} />
-                    <Route path="/os/:id" element={<OSDetails orders={serviceOrders} onUpdateOS={handleUpdateOS} onDeleteOS={handleDeleteOS} />} />
+                    <Route path="/os/:id" element={<OSDetails orders={serviceOrders} technicians={technicians} onUpdateOS={handleUpdateOS} onDeleteOS={handleDeleteOS} onAddTechnician={handleAddTechnician} onDeleteTechnician={handleDeleteTechnician} />} />
                     <Route path="*" element={<Navigate to="/" />} />
                   </Routes>
                   <Navigation />
@@ -344,7 +369,7 @@ const App: React.FC = () => {
                     availableCustomers={customers}
                     onQuickAddCustomer={handleAddCustomer}
                   />
-                </>
+                </div>
               ) : (
                 <Routes>
                   <Route path="/" element={<Landing />} />

@@ -2,23 +2,35 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { OSStatus, ServiceOrder } from '../types';
+import TechnicianManagerDrawer from '../components/TechnicianManagerDrawer';
 
 interface OSDetailsProps {
   orders: ServiceOrder[];
   onUpdateOS: (id: string, updates: Partial<ServiceOrder>) => void;
   onDeleteOS: (id: string) => void;
+  technicians: any[];
+  onAddTechnician: (name: string) => void;
+  onDeleteTechnician: (id: string) => void;
 }
 
-const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS }) => {
+const OSDetails: React.FC<OSDetailsProps> = ({
+  orders,
+  onUpdateOS,
+  onDeleteOS,
+  technicians,
+  onAddTechnician,
+  onDeleteTechnician
+}) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const os = orders.find(o => o.id === id);
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [technician, setTechnician] = useState(os?.technician || 'Não atribuído');
   const [progress, setProgress] = useState(os?.progress || 0);
   const [isSaving, setIsSaving] = useState(false);
+  const [isTechManagerOpen, setIsTechManagerOpen] = useState(false);
 
   // Edit fields
   const [editData, setEditData] = useState({
@@ -53,8 +65,8 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
 
   const handleSaveMaintenance = () => {
     setIsSaving(true);
-    onUpdateOS(os.id, { 
-      technician: technician === 'Não atribuído' ? undefined : technician, 
+    onUpdateOS(os.id, {
+      technician: technician === 'Não atribuído' ? undefined : technician,
       progress,
       ...editData,
       value: (Number(editData.laborValue) || 0) + (Number(editData.partsValue) || 0)
@@ -85,9 +97,8 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
         </div>
         <div className="flex flex-col items-center flex-1">
           <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">OS #{os.id}</h2>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-            os.status === OSStatus.READY ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'
-          }`}>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${os.status === OSStatus.READY ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'
+            }`}>
             {os.status}
           </span>
         </div>
@@ -106,20 +117,31 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
               <span className="material-symbols-outlined text-lg">engineering</span>
               Gestão do Reparo
             </h3>
-            
+
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Técnico Responsável</label>
-              <select 
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none"
-                value={technician}
-                onChange={(e) => setTechnician(e.target.value)}
-              >
-                <option value="Não atribuído">Selecione o técnico...</option>
-                <option value="Wilson Santos">Wilson Santos</option>
-                <option value="Cláudio Ferreira">Cláudio Ferreira</option>
-                <option value="Ricardo Souza">Ricardo Souza</option>
-                <option value="Mariana Lima">Mariana Lima</option>
-              </select>
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-bold text-slate-500 uppercase">Técnico Responsável</label>
+                <button
+                  onClick={() => setIsTechManagerOpen(true)}
+                  className="text-[10px] font-black uppercase text-primary tracking-widest flex items-center gap-1 active:scale-95 transition-all"
+                >
+                  <span className="material-symbols-outlined text-sm">settings</span>
+                  Gerenciar
+                </button>
+              </div>
+              <div className="relative group">
+                <select
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none dark:text-white"
+                  value={technician}
+                  onChange={(e) => setTechnician(e.target.value)}
+                >
+                  <option value="Não atribuído">Selecione o técnico...</option>
+                  {technicians.map(tech => (
+                    <option key={tech.id} value={tech.name}>{tech.name}</option>
+                  ))}
+                </select>
+                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xl">unfold_more</span>
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -127,7 +149,7 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
                 <label className="text-xs font-bold text-slate-500 uppercase ml-1">Progresso Atual</label>
                 <span className={`text-sm font-black ${progress === 100 ? 'text-success' : 'text-primary'}`}>{progress}%</span>
               </div>
-              <input 
+              <input
                 type="range" min="0" max="100" step="5" value={progress}
                 onChange={(e) => setProgress(parseInt(e.target.value))}
                 className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary"
@@ -155,7 +177,7 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Modelo do Aparelho</label>
               {isEditing ? (
-                <input className="w-full p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm" value={editData.device} onChange={e => setEditData({...editData, device: e.target.value})} />
+                <input className="w-full p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm" value={editData.device} onChange={e => setEditData({ ...editData, device: e.target.value })} />
               ) : (
                 <p className="text-slate-900 dark:text-white font-bold">{os.device}</p>
               )}
@@ -163,7 +185,7 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Prioridade</label>
               {isEditing ? (
-                <select className="w-full p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm" value={editData.priority} onChange={e => setEditData({...editData, priority: e.target.value as any})}>
+                <select className="w-full p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm" value={editData.priority} onChange={e => setEditData({ ...editData, priority: e.target.value as any })}>
                   <option value="Baixa">Baixa</option>
                   <option value="Média">Média</option>
                   <option value="Urgente">Urgente</option>
@@ -182,7 +204,7 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
             <div className="p-4 flex justify-between items-center">
               <p className="text-slate-500 text-sm font-medium">Mão de Obra</p>
               {isEditing ? (
-                <input type="number" className="w-24 text-right p-1 bg-slate-50 dark:bg-slate-800 rounded text-sm" value={editData.laborValue} onChange={e => setEditData({...editData, laborValue: Number(e.target.value)})} />
+                <input type="number" className="w-24 text-right p-1 bg-slate-50 dark:bg-slate-800 rounded text-sm" value={editData.laborValue} onChange={e => setEditData({ ...editData, laborValue: Number(e.target.value) })} />
               ) : (
                 <p className="text-slate-900 dark:text-white font-bold">R$ {os.laborValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               )}
@@ -190,7 +212,7 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
             <div className="p-4 flex justify-between items-center">
               <p className="text-slate-500 text-sm font-medium">Peças</p>
               {isEditing ? (
-                <input type="number" className="w-24 text-right p-1 bg-slate-50 dark:bg-slate-800 rounded text-sm" value={editData.partsValue} onChange={e => setEditData({...editData, partsValue: Number(e.target.value)})} />
+                <input type="number" className="w-24 text-right p-1 bg-slate-50 dark:bg-slate-800 rounded text-sm" value={editData.partsValue} onChange={e => setEditData({ ...editData, partsValue: Number(e.target.value) })} />
               ) : (
                 <p className="text-slate-900 dark:text-white font-bold">R$ {os.partsValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               )}
@@ -200,7 +222,7 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
 
         {isEditing && (
           <div className="px-4">
-             <button onClick={handleSaveMaintenance} disabled={isSaving} className="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg transition-all active:scale-95">
+            <button onClick={handleSaveMaintenance} disabled={isSaving} className="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg transition-all active:scale-95">
               {isSaving ? 'Salvando...' : 'Salvar Todas as Edições'}
             </button>
           </div>
@@ -212,13 +234,20 @@ const OSDetails: React.FC<OSDetailsProps> = ({ orders, onUpdateOS, onDeleteOS })
           <button onClick={confirmDelete} className="flex-1 flex items-center justify-center gap-2 h-14 border border-red-200 dark:border-red-900/30 text-red-500 font-bold rounded-xl transition-colors active:scale-[0.98]">
             <span className="material-symbols-outlined text-[20px]">delete</span> Excluir
           </button>
-          <button onClick={handleMarkAsCompleted} disabled={os.status === OSStatus.READY} className={`flex-[1.5] flex items-center justify-center gap-2 h-14 font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] ${
-              os.status === OSStatus.READY ? 'bg-success text-white opacity-90' : 'bg-emerald-600 text-white'}`}>
+          <button onClick={handleMarkAsCompleted} disabled={os.status === OSStatus.READY} className={`flex-[1.5] flex items-center justify-center gap-2 h-14 font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] ${os.status === OSStatus.READY ? 'bg-success text-white opacity-90' : 'bg-emerald-600 text-white'}`}>
             <span className="material-symbols-outlined text-[20px]">check_circle</span>
             {os.status === OSStatus.READY ? 'Concluído' : 'Marcar como Pronto'}
           </button>
         </div>
       </footer>
+
+      <TechnicianManagerDrawer
+        isOpen={isTechManagerOpen}
+        onClose={() => setIsTechManagerOpen(false)}
+        technicians={technicians}
+        onAdd={onAddTechnician}
+        onDelete={onDeleteTechnician}
+      />
     </div>
   );
 };

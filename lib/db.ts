@@ -19,6 +19,7 @@ const CUSTOMERS_COL = "customers";
 const ORDERS_COL = "serviceOrders";
 const EXPENSES_COL = "fixedExpenses";
 const INVENTORY_COL = "inventory";
+const TECHNICIANS_COL = "technicians";
 
 // Helpers to get user-scoped collection path
 const getUserCollection = (userId: string, collectionName: string) => {
@@ -162,6 +163,32 @@ export const dbService = {
 
     deleteExpense: async (userId: string, id: string) => {
         const docRef = doc(db, "users", userId, EXPENSES_COL, id);
+        return deleteDoc(docRef);
+    },
+
+    // Technicians
+    subscribeTechnicians: (userId: string, callback: (data: any[]) => void) => {
+        const q = query(getUserCollection(userId, TECHNICIANS_COL), orderBy("name"));
+        return onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+            callback(data);
+        });
+    },
+
+    addTechnician: async (userId: string, name: string) => {
+        try {
+            return await addDoc(getUserCollection(userId, TECHNICIANS_COL), {
+                name,
+                createdAt: Timestamp.now()
+            });
+        } catch (error) {
+            console.error("Error adding technician:", error);
+            throw error;
+        }
+    },
+
+    deleteTechnician: async (userId: string, id: string) => {
+        const docRef = doc(db, "users", userId, TECHNICIANS_COL, id);
         return deleteDoc(docRef);
     },
 

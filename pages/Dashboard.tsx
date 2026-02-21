@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import { BarChart, Bar, ResponsiveContainer, Cell, XAxis, Tooltip, YAxis } from 'recharts';
 import { ServiceOrder, FixedExpense } from '../types';
 
-const STRIPE_PRO_LINK = "https://buy.stripe.com/test_6oEcO07h4"; // Link de teste padrão
+const STRIPE_PRO_LINK = "https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800";
 
 interface DashboardProps {
   orders: ServiceOrder[];
@@ -114,6 +114,35 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, on
           <p className="text-[10px] text-slate-400 font-bold italic z-10">Considerando R$ {totalFixedExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} de custos fixos</p>
         </div>
 
+        {/* Serviços Prontos para Retirada (Destaque) */}
+        {orders.some(o => o.status === 'Pronto') && (
+          <section className="bg-emerald-50 dark:bg-emerald-900/10 p-5 rounded-3xl border border-emerald-100 dark:border-emerald-800/50">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                <span className="material-symbols-outlined text-xl">check_circle</span>
+                Prontos para Retirada
+              </h3>
+              <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                {orders.filter(o => o.status === 'Pronto').length}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {orders.filter(o => o.status === 'Pronto').map(item => (
+                <Link to={`/os/${item.id}`} key={item.id} className="bg-white dark:bg-slate-900/60 p-3 rounded-2xl flex items-center gap-3 shadow-sm border border-white dark:border-slate-800 transition-all active:scale-[0.98]">
+                  <div className="size-9 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+                    <span className="material-symbols-outlined text-lg">package_2</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold truncate dark:text-white">{item.device}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5 font-medium">{item.customerName}</p>
+                  </div>
+                  <span className="material-symbols-outlined text-slate-300 dark:text-slate-700">chevron_right</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Grade de Métricas Secundárias */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-2">
@@ -211,7 +240,7 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, on
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold truncate dark:text-white">{item.device}</p>
-                  <p className="text-[11px] text-slate-500 font-medium">#{item.id} • {item.customerName}</p>
+                  <p className="text-[11px] text-slate-500 font-medium">#{item.id.substring(0, 6)} • {item.customerName}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">+ R$ {item.laborValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>

@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 
 const Landing: React.FC = () => {
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark overflow-x-hidden selection:bg-primary/30">
+        <div className="min-h-screen bg-background-dark text-slate-100 overflow-x-hidden selection:bg-primary/30">
             {/* HEADER */}
-            <header className="fixed top-0 left-0 right-0 z-[100] glass-card border-b border-slate-200/50 dark:border-slate-800/50 py-4 px-6 sm:px-12 flex items-center justify-between animate-slide-up">
+            <header className="fixed top-0 left-0 right-0 z-[100] bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50 py-4 px-6 sm:px-12 flex items-center justify-between animate-slide-up">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                         <span className="material-symbols-outlined text-white text-xl">build</span>
                     </div>
-                    <h1 className="text-lg font-black tracking-tighter text-slate-900 dark:text-white uppercase">
+                    <h1 className="text-lg font-black tracking-tighter text-white uppercase">
                         TechFix <span className="text-primary">Repair ERP</span>
                     </h1>
                 </div>
@@ -37,32 +37,32 @@ const Landing: React.FC = () => {
                 <span className="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-6">
                     Gestor financeiro inteligente para assistências
                 </span>
-                <h2 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white leading-[1.1] mb-6 max-w-4xl tracking-tighter">
+                <h2 className="text-4xl sm:text-6xl font-black text-white leading-[1.1] mb-6 max-w-4xl tracking-tighter">
                     Você está lucrando de verdade… <span className="text-gradient">ou só girando dinheiro?</span>
                 </h2>
-                <p className="text-lg text-slate-600 dark:text-slate-400 mb-10 max-w-2xl font-medium leading-relaxed">
+                <p className="text-lg text-slate-400 mb-10 max-w-2xl font-medium leading-relaxed">
                     Se você mistura dinheiro de peça com mão de obra, no fim do mês parece que entrou… mas você não sabe quanto realmente sobrou. Com o TechFix, você separa automaticamente:
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 w-full max-w-4xl">
-                    <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm animate-float" style={{ animationDelay: '0s' }}>
+                    <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 shadow-sm animate-float flex flex-col items-center text-center" style={{ animationDelay: '0s' }}>
                         <span className="material-symbols-outlined text-primary text-3xl mb-4">build</span>
-                        <h3 className="font-bold text-slate-900 dark:text-white mb-2">Mão de obra</h3>
+                        <h3 className="font-bold text-white mb-2">Mão de obra</h3>
                         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Lucro Real</p>
                     </div>
-                    <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm animate-float" style={{ animationDelay: '0.2s' }}>
+                    <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 shadow-sm animate-float flex flex-col items-center text-center" style={{ animationDelay: '0.2s' }}>
                         <span className="material-symbols-outlined text-orange-500 text-3xl mb-4">inventory_2</span>
-                        <h3 className="font-bold text-slate-900 dark:text-white mb-2">Peças</h3>
+                        <h3 className="font-bold text-white mb-2">Peças</h3>
                         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Reinvestimento</p>
                     </div>
-                    <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm animate-float" style={{ animationDelay: '0.4s' }}>
+                    <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 shadow-sm animate-float flex flex-col items-center text-center" style={{ animationDelay: '0.4s' }}>
                         <span className="material-symbols-outlined text-green-500 text-3xl mb-4">savings</span>
-                        <h3 className="font-bold text-slate-900 dark:text-white mb-2">Saldo Final</h3>
+                        <h3 className="font-bold text-white mb-2">Saldo Final</h3>
                         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Crescimento</p>
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link to="/register?plan=free" className="bg-primary text-white font-black px-10 py-5 rounded-2xl hover:bg-primary/90 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-primary/30 text-lg">
                         Começar Grátis Agora
                     </Link>
@@ -88,58 +88,58 @@ const Landing: React.FC = () => {
             </section>
 
             {/* THE PROBLEM */}
-            <section className="py-24 px-6 sm:px-12 bg-slate-50 dark:bg-slate-900/50">
+            <section className="py-24 px-6 sm:px-12 bg-slate-900/30">
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">
+                        <h2 className="text-3xl sm:text-4xl font-black text-white mb-6 tracking-tighter">
                             O erro mais comum nas assistências técnicas
                         </h2>
-                        <p className="text-lg text-slate-600 dark:text-slate-400 font-medium">
+                        <p className="text-lg text-slate-400 font-medium">
                             Muita gente trabalha muito e ainda assim não sabe o lucro do mês, porque:
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                        <div className="flex gap-4 p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                            <div className="w-12 h-12 shrink-0 rounded-2xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-red-600 dark:text-red-400">error</span>
+                        <div className="flex gap-4 p-6 bg-slate-900 border border-slate-800 shadow-sm rounded-3xl">
+                            <div className="w-12 h-12 shrink-0 rounded-2xl bg-red-500/10 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-red-500">error</span>
                             </div>
                             <div>
-                                <h4 className="font-bold text-slate-900 dark:text-white mb-1">Mistura custos</h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Você mistura custo de peça com ganho de mão de obra e perde a visão real.</p>
+                                <h4 className="font-bold text-white mb-1">Mistura custos</h4>
+                                <p className="text-sm text-slate-400">Você mistura custo de peça com ganho de mão de obra e perde a visão real.</p>
                             </div>
                         </div>
-                        <div className="flex gap-4 p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                            <div className="w-12 h-12 shrink-0 rounded-2xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-red-600 dark:text-red-400">shopping_cart_off</span>
+                        <div className="flex gap-4 p-6 bg-slate-900 border border-slate-800 shadow-sm rounded-3xl">
+                            <div className="w-12 h-12 shrink-0 rounded-2xl bg-red-500/10 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-red-500">shopping_cart_off</span>
                             </div>
                             <div>
-                                <h4 className="font-bold text-slate-900 dark:text-white mb-1">Compra no escuro</h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Repõe estoque sem saber se aquele serviço realmente deixou margem.</p>
+                                <h4 className="font-bold text-white mb-1">Compra no escuro</h4>
+                                <p className="text-sm text-slate-400">Repõe estoque sem saber se aquele serviço realmente deixou margem.</p>
                             </div>
                         </div>
-                        <div className="flex gap-4 p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                            <div className="w-12 h-12 shrink-0 rounded-2xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-red-600 dark:text-red-400">trending_down</span>
+                        <div className="flex gap-4 p-6 bg-slate-900 border border-slate-800 shadow-sm rounded-3xl">
+                            <div className="w-12 h-12 shrink-0 rounded-2xl bg-red-500/10 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-red-500">trending_down</span>
                             </div>
                             <div>
-                                <h4 className="font-bold text-slate-900 dark:text-white mb-1">Pobreza de margem</h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Cresce em volume de serviço, mas o dinheiro no caixa continua o mesmo.</p>
+                                <h4 className="font-bold text-white mb-1">Pobreza de margem</h4>
+                                <p className="text-sm text-slate-400">Cresce em volume de serviço, mas o dinheiro no caixa continua o mesmo.</p>
                             </div>
                         </div>
-                        <div className="flex gap-4 p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                            <div className="w-12 h-12 shrink-0 rounded-2xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-red-600 dark:text-red-400">psychology</span>
+                        <div className="flex gap-4 p-6 bg-slate-900 border border-slate-800 shadow-sm rounded-3xl">
+                            <div className="w-12 h-12 shrink-0 rounded-2xl bg-red-500/10 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-red-500">psychology</span>
                             </div>
                             <div>
-                                <h4 className="font-bold text-slate-900 dark:text-white mb-1">Decisão no "achismo"</h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Toma decisões importantes baseadas no que acha, não em números reais.</p>
+                                <h4 className="font-bold text-white mb-1">Decisão no "achismo"</h4>
+                                <p className="text-sm text-slate-400">Toma decisões importantes baseadas no que acha, não em números reais.</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-16 p-8 rounded-3xl bg-primary/5 border border-primary/10 text-center">
-                        <p className="text-xl font-bold text-slate-800 dark:text-slate-200 italic">
+                    <div className="mt-16 p-8 rounded-3xl bg-primary/10 border border-primary/20 text-center">
+                        <p className="text-xl font-bold text-slate-200 italic">
                             "O problema não é falta de trabalho. É falta de separação financeira."
                         </p>
                     </div>
@@ -296,10 +296,16 @@ const Landing: React.FC = () => {
                                 ))}
                             </div>
 
-                            <Link to="/register?plan=pro" className="w-full py-5 px-6 rounded-2xl bg-primary text-white font-black hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/30 text-center">
+                            <a
+                                href="https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full py-5 px-6 rounded-2xl bg-primary text-white font-black hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/30 text-center block"
+                            >
                                 Assinar Pro — R$ 9,99
-                            </Link>
-                            <p className="text-center text-[10px] text-slate-500 mt-4 font-bold uppercase tracking-widest">Pague por PIX ou Cartão • Cancelamento fácil</p>
+                            </a>
+                            <p className="text-center text-[10px] text-slate-500 mt-4 font-bold uppercase tracking-widest">Pagamento seguro via Stripe • PIX ou Cartão</p>
+                            <p className="text-center text-[9px] text-slate-600/60 mt-1 font-medium">Cadastre-se antes de pagar para ativar o plano automaticamente</p>
                         </div>
                     </div>
 

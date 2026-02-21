@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { auth } from '../lib/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface LoginProps {
   onLogin: () => void;
@@ -12,6 +12,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +21,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      navigate('/');
       onLogin();
     } catch (err: any) {
       console.error('Login error:', err);

@@ -10,9 +10,12 @@ interface EstoqueProps {
   onToggleTheme?: () => void;
   onLogout?: () => void;
   isDarkMode?: boolean;
+  userPlan?: string;
 }
 
-const Estoque: React.FC<EstoqueProps> = ({ items, onAddItem, onDeleteItem, onToggleTheme, onLogout, isDarkMode }) => {
+const STRIPE_PRO_LINK = "https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800";
+
+const Estoque: React.FC<EstoqueProps> = ({ items, onAddItem, onDeleteItem, onToggleTheme, onLogout, isDarkMode, userPlan }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [newItem, setNewItem] = useState({ name: '', model: '', qty: '', cost: '' });
 
@@ -93,6 +96,22 @@ const Estoque: React.FC<EstoqueProps> = ({ items, onAddItem, onDeleteItem, onTog
       </div>
 
       <main className="px-4 space-y-3">
+        {userPlan === 'free' && (
+          <div className="bg-gradient-to-r from-violet-600 to-primary rounded-2xl p-4 text-white flex items-center justify-between gap-3 shadow-lg">
+            <div>
+              <p className="font-black text-sm">Upgrade para Pro</p>
+              <p className="text-[11px] opacity-80">Estoque sem limites + recursos avançados</p>
+            </div>
+            <a
+              href={STRIPE_PRO_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white text-primary px-4 py-2 rounded-xl font-black text-xs shadow-md active:scale-95 transition-all whitespace-nowrap"
+            >
+              R$ 9,99/mês
+            </a>
+          </div>
+        )}
         {items.length > 0 ? items.map((item) => (
           <div key={item.id} className={`bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border-l-4 flex flex-col gap-3 group relative transition-colors ${item.status === 'Estoque Baixo' ? 'border-red-500' : 'border-emerald-500'}`}>
             <button

@@ -33,7 +33,11 @@ const Register: React.FC = () => {
                 createdAt: new Date().toISOString()
             });
 
-            navigate('/');
+            if (selectedPlan === 'pro') {
+                window.location.href = 'https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800';
+            } else {
+                navigate('/');
+            }
         } catch (err: any) {
             console.error('Registration error:', err);
             if (err.code === 'auth/email-already-in-use') {
@@ -75,11 +79,18 @@ const Register: React.FC = () => {
                         </div>
 
                         {selectedPlan && (
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 w-fit">
-                                <span className="material-symbols-outlined text-primary text-sm font-black">verified</span>
-                                <span className="text-primary text-[10px] font-black uppercase tracking-widest leading-none">
-                                    Plano Selecionado: {selectedPlan === 'pro' ? 'PROFISSIONAL' : 'GRATUITO'}
-                                </span>
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 w-fit">
+                                    <span className="material-symbols-outlined text-primary text-sm font-black">verified</span>
+                                    <span className="text-primary text-[10px] font-black uppercase tracking-widest leading-none">
+                                        Plano Selecionado: {selectedPlan === 'pro' ? 'PROFISSIONAL' : 'GRATUITO'}
+                                    </span>
+                                </div>
+                                {selectedPlan === 'pro' && (
+                                    <p className="text-[11px] text-slate-500 font-medium">
+                                        💳 Após criar sua conta, você será redirecionado ao Stripe para concluir o pagamento.
+                                    </p>
+                                )}
                             </div>
                         )}
 
