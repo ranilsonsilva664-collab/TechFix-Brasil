@@ -6,10 +6,11 @@ interface HeaderProps {
   subtitle?: string;
   showAvatar?: boolean;
   onToggleTheme?: () => void;
+  onLogout?: () => void;
   isDarkMode?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, subtitle, showAvatar = true, onToggleTheme, isDarkMode }) => {
+const Header: React.FC<HeaderProps> = ({ title, subtitle, showAvatar = true, onToggleTheme, onLogout, isDarkMode }) => {
   return (
     <header className="sticky top-0 z-30 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -25,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, showAvatar = true, onT
       </div>
       <div className="flex gap-2">
         {/* Botão para Me Apertar (Troca de Tema) */}
-        <button 
+        <button
           onClick={onToggleTheme}
           title="Mudar Tema"
           className="size-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 active:scale-90 transition-all group overflow-hidden"
@@ -34,7 +35,17 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, showAvatar = true, onT
             {isDarkMode ? 'light_mode' : 'dark_mode'}
           </span>
         </button>
-        
+
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            title="Sair"
+            className="size-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 active:scale-90 transition-all text-danger"
+          >
+            <span className="material-symbols-outlined font-bold">logout</span>
+          </button>
+        )}
+
         <button className="size-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">
           <span className="material-symbols-outlined text-primary">notifications</span>
         </button>

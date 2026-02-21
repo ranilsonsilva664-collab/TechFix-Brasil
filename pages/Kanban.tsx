@@ -8,10 +8,11 @@ interface KanbanProps {
   onDeleteOS: (id: string) => void;
   onOpenNewOS: () => void;
   onToggleTheme?: () => void;
+  onLogout?: () => void;
   isDarkMode?: boolean;
 }
 
-const Kanban: React.FC<KanbanProps> = ({ orders, onDeleteOS, onOpenNewOS, onToggleTheme, isDarkMode }) => {
+const Kanban: React.FC<KanbanProps> = ({ orders, onDeleteOS, onOpenNewOS, onToggleTheme, onLogout, isDarkMode }) => {
   const columnConfigs = [
     { name: OSStatus.RECEIVED, label: 'Recebido' },
     { name: OSStatus.DIAGNOSIS, label: 'Diagnóstico' },
@@ -35,18 +36,19 @@ const Kanban: React.FC<KanbanProps> = ({ orders, onDeleteOS, onOpenNewOS, onTogg
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden bg-background-light dark:bg-background-dark">
       <div className="shrink-0">
-        <Header 
-          title="Kanban de OS" 
-          showAvatar={true} 
-          onToggleTheme={onToggleTheme} 
-          isDarkMode={isDarkMode} 
+        <Header
+          title="Kanban de OS"
+          showAvatar={true}
+          onToggleTheme={onToggleTheme}
+          onLogout={onLogout}
+          isDarkMode={isDarkMode}
         />
         <div className="flex gap-2 items-center p-4">
           <div className="relative flex-1 group">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-            <input 
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm shadow-sm dark:text-white" 
-              placeholder="Buscar por OS, cliente ou aparelho..." 
+            <input
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm shadow-sm dark:text-white"
+              placeholder="Buscar por OS, cliente ou aparelho..."
               type="text"
             />
           </div>
@@ -70,10 +72,9 @@ const Kanban: React.FC<KanbanProps> = ({ orders, onDeleteOS, onOpenNewOS, onTogg
                   <div className="flex justify-between items-start mb-2">
                     <span className="text-primary font-bold text-sm">#{card.id}</span>
                     <div className="flex items-center gap-2">
-                       <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase ${
-                        card.priority === 'Urgente' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 
-                        card.priority === 'Média' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                      }`}>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase ${card.priority === 'Urgente' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                          card.priority === 'Média' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                        }`}>
                         {card.priority}
                       </span>
                       <button onClick={(e) => confirmDelete(e, card.id)} className="text-slate-300 hover:text-red-500 transition-colors">

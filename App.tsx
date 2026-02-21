@@ -9,6 +9,8 @@ import Estoque from './pages/Estoque';
 import OSDetails from './pages/OSDetails';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Landing from './pages/Landing';
+import SuccessUpgrade from './pages/SuccessUpgrade';
 import NewOSDrawer from './components/NewOSDrawer';
 import { OSStatus, ServiceOrder, FixedExpense, InventoryItem } from './types';
 import { auth } from './lib/firebase';
@@ -63,6 +65,7 @@ const App: React.FC = () => {
   const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>([]);
   const [fixedExpenses, setFixedExpenses] = useState<FixedExpense[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   // Auth initialization and Firestore subscriptions
   useEffect(() => {
@@ -88,12 +91,14 @@ const App: React.FC = () => {
     const unsubOrders = dbService.subscribeOrders(userId, setServiceOrders);
     const unsubInventory = dbService.subscribeInventory(userId, setInventory);
     const unsubExpenses = dbService.subscribeExpenses(userId, setFixedExpenses);
+    const unsubProfile = dbService.subscribeProfile(userId, setUserProfile);
 
     return () => {
       unsubCustomers();
       unsubOrders();
       unsubInventory();
       unsubExpenses();
+      unsubProfile();
     };
   }, [userId]);
 
@@ -120,6 +125,13 @@ const App: React.FC = () => {
   // OS Handlers
   const handleCreateOS = async (newOS: Omit<ServiceOrder, 'id' | 'timestamp' | 'createdAt'>) => {
     if (!userId) return;
+
+    // Plan Limits
+    if (userProfile?.plan === 'free' && serviceOrders.length >= 5) {
+      alert("Limite do Plano Gratuito atingido: Máximo de 5 OS. Faça upgrade para o Pro!");
+      return;
+    }
+
     try {
       const now = new Date();
       const osData = {
@@ -190,6 +202,13 @@ const App: React.FC = () => {
   // Customer Handlers
   const handleAddCustomer = async (name: string, phone: string) => {
     if (!userId) return;
+
+    // Plan Limits
+    if (userProfile?.plan === 'free' && customers.length >= 5) {
+      alert("Limite do Plano Gratuito atingido: Máximo de 5 Clientes. Faça upgrade para o Pro!");
+      return;
+    }
+
     try {
       const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
       const customerData = {
@@ -307,11 +326,12 @@ const App: React.FC = () => {
               isAuthenticated ? (
                 <>
                   <Routes>
-                    <Route path="/" element={<Dashboard orders={serviceOrders} expenses={fixedExpenses} onOpenNewOS={() => setIsNewOSOpen(true)} onToggleTheme={toggleTheme} isDarkMode={isDarkMode} />} />
-                    <Route path="/financeiro" element={<Financeiro orders={serviceOrders} expenses={fixedExpenses} onAddExpense={handleAddExpense} onRemoveExpense={handleRemoveExpense} onDeleteOS={handleDeleteOS} onToggleTheme={toggleTheme} isDarkMode={isDarkMode} />} />
-                    <Route path="/kanban" element={<Kanban orders={serviceOrders} onDeleteOS={handleDeleteOS} onOpenNewOS={() => setIsNewOSOpen(true)} onToggleTheme={toggleTheme} isDarkMode={isDarkMode} />} />
-                    <Route path="/clientes" element={<Clientes customers={customers} orders={serviceOrders} onUpdateCustomer={handleUpdateCustomer} onDeleteCustomer={handleDeleteCustomer} onDeleteOS={handleDeleteOS} onAddCustomer={handleAddCustomer} onToggleTheme={toggleTheme} isDarkMode={isDarkMode} />} />
-                    <Route path="/estoque" element={<Estoque items={inventory} onAddItem={handleAddItem} onDeleteItem={handleDeleteItem} onToggleTheme={toggleTheme} isDarkMode={isDarkMode} />} />
+                    <Route path="/" element={<Dashboard orders={serviceOrders} expenses={fixedExpenses} onOpenNewOS={() => setIsNewOSOpen(true)} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
+                    <Route path="/financeiro" element={<Financeiro orders={serviceOrders} expenses={fixedExpenses} onAddExpense={handleAddExpense} onRemoveExpense={handleRemoveExpense} onDeleteOS={handleDeleteOS} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
+                    <Route path="/kanban" element={<Kanban orders={serviceOrders} onDeleteOS={handleDeleteOS} onOpenNewOS={() => setIsNewOSOpen(true)} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
+                    <Route path="/clientes" element={<Clientes customers={customers} orders={serviceOrders} onUpdateCustomer={handleUpdateCustomer} onDeleteCustomer={handleDeleteCustomer} onDeleteOS={handleDeleteOS} onAddCustomer={handleAddCustomer} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
+                    <Route path="/estoque" element={<Estoque items={inventory} onAddItem={handleAddItem} onDeleteItem={handleDeleteItem} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
+                    <Route path="/success-upgrade" element={<SuccessUpgrade />} />
                     <Route path="/os/:id" element={<OSDetails orders={serviceOrders} onUpdateOS={handleUpdateOS} onDeleteOS={handleDeleteOS} />} />
                     <Route path="*" element={<Navigate to="/" />} />
                   </Routes>
@@ -326,7 +346,10 @@ const App: React.FC = () => {
                   />
                 </>
               ) : (
-                <Navigate to="/login" />
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
               )
             }
           />

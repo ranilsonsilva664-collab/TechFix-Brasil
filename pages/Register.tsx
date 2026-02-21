@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { auth } from '../lib/firebase';
+import { dbService } from '../lib/db';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 const Register: React.FC = () => {
     const [name, setName] = useState('');
@@ -10,6 +11,8 @@ const Register: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const selectedPlan = searchParams.get('plan');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,6 +24,15 @@ const Register: React.FC = () => {
             await updateProfile(userCredential.user, {
                 displayName: name
             });
+
+            // Save plan to character profile
+            await dbService.updateProfile(userCredential.user.uid, {
+                name: name,
+                email: email,
+                plan: selectedPlan || 'free',
+                createdAt: new Date().toISOString()
+            });
+
             navigate('/');
         } catch (err: any) {
             console.error('Registration error:', err);
@@ -61,6 +73,15 @@ const Register: React.FC = () => {
                             <h2 className="text-slate-900 dark:text-white text-xl font-bold">Informações básicas</h2>
                             <p className="text-slate-500 text-sm mt-1">Prencha os dados para começar</p>
                         </div>
+
+                        {selectedPlan && (
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 w-fit">
+                                <span className="material-symbols-outlined text-primary text-sm font-black">verified</span>
+                                <span className="text-primary text-[10px] font-black uppercase tracking-widest leading-none">
+                                    Plano Selecionado: {selectedPlan === 'pro' ? 'PROFISSIONAL' : 'GRATUITO'}
+                                </span>
+                            </div>
+                        )}
 
                         {error && (
                             <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 p-3 rounded-lg text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2">

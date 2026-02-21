@@ -8,10 +8,11 @@ interface EstoqueProps {
   onAddItem: (item: Omit<InventoryItem, 'id'>) => void;
   onDeleteItem: (id: string) => void;
   onToggleTheme?: () => void;
+  onLogout?: () => void;
   isDarkMode?: boolean;
 }
 
-const Estoque: React.FC<EstoqueProps> = ({ items, onAddItem, onDeleteItem, onToggleTheme, isDarkMode }) => {
+const Estoque: React.FC<EstoqueProps> = ({ items, onAddItem, onDeleteItem, onToggleTheme, onLogout, isDarkMode }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [newItem, setNewItem] = useState({ name: '', model: '', qty: '', cost: '' });
 
@@ -47,7 +48,7 @@ const Estoque: React.FC<EstoqueProps> = ({ items, onAddItem, onDeleteItem, onTog
             <h1 className="text-2xl font-extrabold tracking-tight dark:text-white">Estoque</h1>
           </div>
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={onToggleTheme}
               className="size-11 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 active:scale-90 transition-all"
             >
@@ -55,18 +56,27 @@ const Estoque: React.FC<EstoqueProps> = ({ items, onAddItem, onDeleteItem, onTog
                 {isDarkMode ? 'light_mode' : 'dark_mode'}
               </span>
             </button>
-            <button 
+            <button
               onClick={() => setIsAdding(true)}
               className="flex items-center justify-center size-11 rounded-full bg-primary text-white shadow-lg shadow-primary/30 active:scale-95 transition-transform"
             >
               <span className="material-symbols-outlined">add</span>
             </button>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                title="Sair"
+                className="size-11 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 active:scale-90 transition-all text-danger"
+              >
+                <span className="material-symbols-outlined font-bold">logout</span>
+              </button>
+            )}
           </div>
         </div>
         <div className="flex gap-2 mb-2">
           <div className="relative flex-1">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
-            <input className="w-full h-11 pl-10 pr-4 bg-white dark:bg-slate-900 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 shadow-sm placeholder:text-slate-400 dark:text-white" placeholder="Buscar peça ou modelo..." type="text"/>
+            <input className="w-full h-11 pl-10 pr-4 bg-white dark:bg-slate-900 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 shadow-sm placeholder:text-slate-400 dark:text-white" placeholder="Buscar peça ou modelo..." type="text" />
           </div>
           <button className="flex items-center justify-center size-11 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400">
             <span className="material-symbols-outlined">tune</span>
@@ -85,7 +95,7 @@ const Estoque: React.FC<EstoqueProps> = ({ items, onAddItem, onDeleteItem, onTog
       <main className="px-4 space-y-3">
         {items.length > 0 ? items.map((item) => (
           <div key={item.id} className={`bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border-l-4 flex flex-col gap-3 group relative transition-colors ${item.status === 'Estoque Baixo' ? 'border-red-500' : 'border-emerald-500'}`}>
-            <button 
+            <button
               onClick={() => confirmDelete(item.id, item.name)}
               className="absolute top-3 right-3 text-slate-300 hover:text-danger p-1 transition-colors"
             >
@@ -130,62 +140,62 @@ const Estoque: React.FC<EstoqueProps> = ({ items, onAddItem, onDeleteItem, onTog
           <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl p-6 animate-slide-up">
             <div className="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6" />
             <h2 className="text-xl font-black mb-6 dark:text-white">Novo Item no Estoque</h2>
-            
+
             <form onSubmit={handleAddItemSubmit} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500 uppercase ml-1">Nome da Peça</label>
-                <input 
+                <input
                   autoFocus
                   required
                   className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm dark:text-white"
                   placeholder="Ex: Tela iPhone 14 Pro"
                   value={newItem.name}
-                  onChange={e => setNewItem({...newItem, name: e.target.value})}
+                  onChange={e => setNewItem({ ...newItem, name: e.target.value })}
                 />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500 uppercase ml-1">Modelo/Versão</label>
-                <input 
+                <input
                   className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm dark:text-white"
                   placeholder="Ex: Original / A2890"
                   value={newItem.model}
-                  onChange={e => setNewItem({...newItem, model: e.target.value})}
+                  onChange={e => setNewItem({ ...newItem, model: e.target.value })}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-500 uppercase ml-1">Quantidade</label>
-                  <input 
+                  <input
                     required
                     type="number"
                     className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm dark:text-white"
                     placeholder="0"
                     value={newItem.qty}
-                    onChange={e => setNewItem({...newItem, qty: e.target.value})}
+                    onChange={e => setNewItem({ ...newItem, qty: e.target.value })}
                   />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-500 uppercase ml-1">Custo (R$)</label>
-                  <input 
+                  <input
                     type="number"
                     step="0.01"
                     className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm dark:text-white"
                     placeholder="0,00"
                     value={newItem.cost}
-                    onChange={e => setNewItem({...newItem, cost: e.target.value})}
+                    onChange={e => setNewItem({ ...newItem, cost: e.target.value })}
                   />
                 </div>
               </div>
-              
+
               <div className="pt-4 flex gap-3">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setIsAdding(false)}
                   className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold rounded-xl"
                 >
                   Cancelar
                 </button>
-                <button 
+                <button
                   type="submit"
                   className="flex-[2] py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20"
                 >

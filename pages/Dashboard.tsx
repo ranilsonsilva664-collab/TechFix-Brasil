@@ -5,21 +5,25 @@ import Header from '../components/Header';
 import { BarChart, Bar, ResponsiveContainer, Cell, XAxis, Tooltip, YAxis } from 'recharts';
 import { ServiceOrder, FixedExpense } from '../types';
 
+const STRIPE_PRO_LINK = "https://buy.stripe.com/test_6oEcO07h4"; // Link de teste padrão
+
 interface DashboardProps {
   orders: ServiceOrder[];
   expenses: FixedExpense[];
   onOpenNewOS: () => void;
   onToggleTheme?: () => void;
+  onLogout?: () => void;
   isDarkMode?: boolean;
+  userPlan?: string;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, onToggleTheme, isDarkMode }) => {
+const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, onToggleTheme, onLogout, isDarkMode, userPlan }) => {
   // Cálculos de precisão financeira
   const totalGrossRevenue = orders.reduce((acc, curr) => acc + (curr.value || 0), 0);
   const totalLaborRevenue = orders.reduce((acc, curr) => acc + (curr.laborValue || 0), 0);
   const totalPartsInvestment = orders.reduce((acc, curr) => acc + (curr.partsValue || 0), 0);
   const totalFixedExpenses = expenses.reduce((acc, curr) => acc + (curr.amount || 0), 0);
-  
+
   // Lucro Real = Mão de Obra - Despesas Fixas
   const realProfit = totalLaborRevenue - totalFixedExpenses;
 
@@ -27,19 +31,19 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, on
   const generateChartData = () => {
     const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
     const result = [];
-    
+
     // Iteramos os últimos 7 dias
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      
+
       // Chave de comparação formatada (YYYY-MM-DD)
-      const dateStr = date.getFullYear() + '-' + 
-                      String(date.getMonth() + 1).padStart(2, '0') + '-' + 
-                      String(date.getDate()).padStart(2, '0');
-      
+      const dateStr = date.getFullYear() + '-' +
+        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+        String(date.getDate()).padStart(2, '0');
+
       const dayName = labels[date.getDay()];
-      
+
       // Somamos apenas a mão de obra (ganho real do empresário)
       const dailyLabor = orders.reduce((acc, order) => {
         if (order.createdAt && order.createdAt.startsWith(dateStr)) {
@@ -48,9 +52,9 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, on
         return acc;
       }, 0);
 
-      result.push({ 
-        name: dayName, 
-        val: dailyLabor, 
+      result.push({
+        name: dayName,
+        val: dailyLabor,
         fullDate: date.toLocaleDateString('pt-BR'),
         isToday: i === 0
       });
@@ -62,16 +66,35 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, on
 
   return (
     <div className="flex-1 pb-32 font-display bg-background-light dark:bg-background-dark transition-colors duration-300">
-      <Header 
-        title="TechFix Brasil" 
-        subtitle="Bem-vindo," 
-        onToggleTheme={onToggleTheme} 
-        isDarkMode={isDarkMode} 
+      <Header
+        title="TechFix Brasil"
+        subtitle="Bem-vindo,"
+        onToggleTheme={onToggleTheme}
+        onLogout={onLogout}
+        isDarkMode={isDarkMode}
       />
-      
-      <main className="px-4 space-y-6 pt-4">
+
+      <main className="p-4 space-y-4">
+        {userPlan === 'free' && (
+          <div className="bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-6xl">workspace_premium</span>
+            </div>
+            <h2 className="text-xl font-black mb-1">Você está no Plano Gratuito</h2>
+            <p className="text-sm opacity-90 mb-4 max-w-[200px]">Libere OS ilimitadas, clientes ilimitados e o controle de custos fixos.</p>
+            <a
+              href={STRIPE_PRO_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white text-orange-600 px-6 py-2.5 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all inline-block"
+            >
+              Assinar Pro — R$ 9,99
+            </a>
+          </div>
+        )}
+
         {/* Botão de Ação Rápida */}
-        <button 
+        <button
           onClick={onOpenNewOS}
           className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-primary/30 transition-all active:scale-[0.98]"
         >
@@ -81,14 +104,14 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, on
 
         {/* Métrica Principal: Lucro Real (Ganho Final do Empresário) */}
         <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col items-center text-center gap-2 relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-4 opacity-5 text-slate-900 dark:text-white">
-             <span className="material-symbols-outlined text-6xl">account_balance_wallet</span>
-           </div>
-           <p className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest z-10">Seu Lucro Real (Mão de Obra - Despesas)</p>
-           <h2 className={`text-4xl font-black z-10 tracking-tight ${realProfit >= 0 ? 'text-slate-900 dark:text-white' : 'text-danger'}`}>
-             R$ {realProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-           </h2>
-           <p className="text-[10px] text-slate-400 font-bold italic z-10">Considerando R$ {totalFixedExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} de custos fixos</p>
+          <div className="absolute top-0 right-0 p-4 opacity-5 text-slate-900 dark:text-white">
+            <span className="material-symbols-outlined text-6xl">account_balance_wallet</span>
+          </div>
+          <p className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest z-10">Seu Lucro Real (Mão de Obra - Despesas)</p>
+          <h2 className={`text-4xl font-black z-10 tracking-tight ${realProfit >= 0 ? 'text-slate-900 dark:text-white' : 'text-danger'}`}>
+            R$ {realProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </h2>
+          <p className="text-[10px] text-slate-400 font-bold italic z-10">Considerando R$ {totalFixedExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} de custos fixos</p>
         </div>
 
         {/* Grade de Métricas Secundárias */}
@@ -130,23 +153,23 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, on
               Tempo Real
             </div>
           </div>
-          
+
           <div className="h-48 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
                   dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
                 />
-                <Tooltip 
+                <Tooltip
                   cursor={{ fill: 'rgba(0,0,0,0.02)' }}
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
@@ -162,9 +185,9 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, expenses, onOpenNewOS, on
                 />
                 <Bar dataKey="val" radius={[6, 6, 0, 0]}>
                   {chartData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.isToday ? '#135bec' : '#10b981'} 
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.isToday ? '#135bec' : '#10b981'}
                       fillOpacity={0.8}
                     />
                   ))}

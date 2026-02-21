@@ -163,5 +163,33 @@ export const dbService = {
     deleteExpense: async (userId: string, id: string) => {
         const docRef = doc(db, "users", userId, EXPENSES_COL, id);
         return deleteDoc(docRef);
+    },
+
+    // User Profile
+    getUserProfile: async (userId: string) => {
+        const docRef = doc(db, "users", userId);
+        const snapshot = await getDocs(query(collection(db, "users"), where("__name__", "==", userId)));
+        // Since we are using subcollections for data, the user document itself might not exist yet.
+        // We'll create it if it doesn't.
+        return snapshot.docs[0]?.data();
+    },
+
+    subscribeProfile: (userId: string, callback: (data: any) => void) => {
+        const docRef = doc(db, "users", userId);
+        return onSnapshot(docRef, (doc) => {
+            callback(doc.data() || { plan: 'free' });
+        });
+    },
+
+    updateProfile: async (userId: string, updates: any) => {
+        const docRef = doc(db, "users", userId);
+        try {
+            // Use setDoc with merge: true to ensure the document exists
+            const { setDoc } = await import("firebase/firestore");
+            return await setDoc(docRef, cleanData(updates), { merge: true });
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            throw error;
+        }
     }
 };
