@@ -34,7 +34,7 @@ const Register: React.FC = () => {
             });
 
             if (selectedPlan === 'pro') {
-                window.location.href = 'https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800';
+                window.location.href = 'https://buy.stripe.com/aFa3cw9Gcdpf0sW4eDcs800';
             } else {
                 navigate('/');
             }

@@ -297,7 +297,7 @@ const Landing: React.FC = () => {
                             </div>
 
                             <a
-                                href="https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800"
+                                href="https://buy.stripe.com/aFa3cw9Gcdpf0sW4eDcs800"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-full py-5 px-6 rounded-2xl bg-primary text-white font-black hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/30 text-center block"

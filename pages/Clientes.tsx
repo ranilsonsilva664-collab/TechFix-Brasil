@@ -16,7 +16,7 @@ interface ClientesProps {
   userPlan?: string;
 }
 
-const STRIPE_PRO_LINK = "https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800";
+const STRIPE_PRO_LINK = "https://buy.stripe.com/aFa3cw9Gcdpf0sW4eDcs800";
 
 const Clientes: React.FC<ClientesProps> = ({
   customers, orders, onAddCustomer, onUpdateCustomer, onDeleteCustomer, onDeleteOS, onToggleTheme, onLogout, isDarkMode, userPlan

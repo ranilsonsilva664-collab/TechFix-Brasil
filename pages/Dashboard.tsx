@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import { BarChart, Bar, ResponsiveContainer, Cell, XAxis, Tooltip, YAxis } from 'recharts';
 import { ServiceOrder, FixedExpense } from '../types';
 
-const STRIPE_PRO_LINK = "https://buy.stripe.com/test_aFa3cw9Gcdpf0sW4eDcs800";
+const STRIPE_PRO_LINK = "https://buy.stripe.com/aFa3cw9Gcdpf0sW4eDcs800";
 
 interface DashboardProps {
   orders: ServiceOrder[];
