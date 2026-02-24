@@ -254,7 +254,7 @@ const Landing: React.FC = () => {
                             </div>
 
                             <div className="flex-1 space-y-4 mb-10">
-                                {['Até 11 OS', 'Até 5 clientes', 'Plano de Separação', 'Visualização de saldo por OS'].map((item, i) => (
+                                {['Até 11 OS', 'Até 5 clientes', 'Plano de Separação', '5 Despesas Fixas (Teste)'].map((item, i) => (
                                     <div key={i} className="flex items-center gap-3 font-bold text-slate-700 dark:text-slate-300">
                                         <span className="material-symbols-outlined text-green-500 text-xl font-black">check</span>
                                         <span className="text-sm">{item}</span>

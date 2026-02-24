@@ -126,7 +126,7 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
             >
               <div className="flex items-center justify-center gap-1">
                 {tab}
-                {tab === 'Despesas Fixas' && userPlan === 'free' && (
+                {tab === 'Despesas Fixas' && userPlan === 'free' && expenses.length >= 5 && (
                   <span className="material-symbols-outlined text-xs text-amber-500">lock</span>
                 )}
               </div>
@@ -136,25 +136,7 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
         </nav>
 
         <div className="space-y-6">
-          {activeTab === 'Despesas Fixas' && userPlan === 'free' ? (
-            <div className="py-12 flex flex-col items-center text-center space-y-4 px-6 animate-fade-in">
-              <div className="size-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-amber-500 mb-2">
-                <span className="material-symbols-outlined text-4xl">workspace_premium</span>
-              </div>
-              <h2 className="text-xl font-black dark:text-white">Relatório de Custo Fixo</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 pb-4">
-                O controle de despesas recorrentes (aluguel, luz, internet) está disponível apenas no <strong>Plano Pro</strong>.
-              </p>
-              <a
-                href={STRIPE_PRO_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full max-w-xs py-4 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/30 active:scale-95 transition-all text-center"
-              >
-                Mudar para Pro — R$ 9,99
-              </a>
-            </div>
-          ) : activeTab === 'Geral' ? (
+          {activeTab === 'Despesas Fixas' || activeTab === 'Geral' || activeTab === 'Peças' ? (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
               {/* Real Profit Hero Card */}
               <div className="px-2">
@@ -288,12 +270,34 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
             </div>
           ) : activeTab === 'Despesas Fixas' ? (
             <div className="px-2 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              {userPlan === 'free' && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 p-4 rounded-3xl flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-amber-500">info</span>
+                    <div>
+                      <p className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Limite do Plano Grátis</p>
+                      <p className="text-sm font-bold dark:text-slate-300">{expenses.length} de 5 despesas fixas utilizadas</p>
+                    </div>
+                  </div>
+                  {expenses.length >= 5 && (
+                    <a href={STRIPE_PRO_LINK} target="_blank" rel="noopener noreferrer" className="text-xs font-black text-primary hover:underline">UPGRADE</a>
+                  )}
+                </div>
+              )}
+
               <button
-                onClick={() => setIsAddingExpense(true)}
+                onClick={() => {
+                  if (userPlan === 'free' && expenses.length >= 5) {
+                    window.alert('Você atingiu o limite de 5 despesas fixas do plano gratuito. Faça upgrade para o Plano Pro para adicionar ilimitadas.');
+                    window.open(STRIPE_PRO_LINK, '_blank');
+                    return;
+                  }
+                  setIsAddingExpense(true);
+                }}
                 className="w-full py-5 bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl flex items-center justify-center gap-3 text-slate-500 font-bold active:scale-[0.98] transition-all hover:border-primary/30 hover:text-primary"
               >
                 <span className="material-symbols-outlined">add_circle</span>
-                Adicionar Nova Conta
+                {userPlan === 'free' && expenses.length >= 5 ? 'Limite de Despesas Atingido' : 'Adicionar Nova Conta'}
               </button>
 
               <div className="space-y-3">
