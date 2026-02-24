@@ -150,7 +150,7 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
         </nav>
 
         <div className="space-y-6">
-          {activeTab === 'Despesas Fixas' || activeTab === 'Geral' || activeTab === 'Peças' ? (
+          {activeTab === 'Geral' ? (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
               {/* Real Profit Hero Card */}
               <div className="px-2">
