@@ -8,6 +8,7 @@ interface FinanceiroProps {
   expenses: FixedExpense[];
   onAddExpense: (expense: Omit<FixedExpense, 'id'>) => void;
   onRemoveExpense: (id: string) => void;
+  onUpdateExpense: (id: string, updates: Partial<FixedExpense>) => void;
   onDeleteOS: (id: string) => void;
   onToggleTheme?: () => void;
   onLogout?: () => void;
@@ -29,6 +30,7 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
     description: '',
     amount: ''
   });
+  const [editingExpId, setEditingExpId] = useState<string | null>(null);
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -36,8 +38,11 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
   ];
 
   const getMonthDisplay = (monthStr: string) => {
+    if (!monthStr) return '';
     const [year, month] = monthStr.split('-');
-    return `${monthNames[parseInt(month) - 1]} ${year}`;
+    const mIndex = parseInt(month, 10) - 1;
+    if (mIndex < 0 || mIndex > 11) return monthStr;
+    return `${monthNames[mIndex]} ${year}`;
   };
 
   const tabs = ['Geral', 'Despesas Fixas', 'Histórico'];
@@ -63,12 +68,21 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
   const handleAddExpenseSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newExp.amount || !newExp.description) return;
-    onAddExpense({
+
+    const expenseData = {
       category: newExp.category,
       description: newExp.description,
       amount: parseFloat(newExp.amount)
-    });
+    };
+
+    if (editingExpId) {
+      onUpdateExpense(editingExpId, expenseData);
+    } else {
+      onAddExpense(expenseData);
+    }
+
     setNewExp({ category: 'Outros', description: '', amount: '' });
+    setEditingExpId(null);
     setIsAddingExpense(false);
   };
 
@@ -318,12 +332,28 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
                     </div>
                     <div className="text-right flex items-center gap-4">
                       <p className="text-base font-black text-danger">- R$ {exp.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                      <button
-                        onClick={() => confirmDeleteExpense(exp.id, exp.description)}
-                        className="size-10 flex items-center justify-center text-slate-300 dark:text-slate-600 hover:text-danger hover:bg-danger/10 rounded-xl transition-all active:scale-90"
-                      >
-                        <span className="material-symbols-outlined text-xl">delete</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingExpId(exp.id);
+                            setNewExp({
+                              category: exp.category,
+                              description: exp.description,
+                              amount: exp.amount.toString()
+                            });
+                            setIsAddingExpense(true);
+                          }}
+                          className="size-10 flex items-center justify-center text-slate-300 dark:text-slate-600 hover:text-primary hover:bg-primary/10 rounded-xl transition-all active:scale-90"
+                        >
+                          <span className="material-symbols-outlined text-xl">edit</span>
+                        </button>
+                        <button
+                          onClick={() => confirmDeleteExpense(exp.id, exp.description)}
+                          className="size-10 flex items-center justify-center text-slate-300 dark:text-slate-600 hover:text-danger hover:bg-danger/10 rounded-xl transition-all active:scale-90"
+                        >
+                          <span className="material-symbols-outlined text-xl">delete</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )) : (
@@ -384,8 +414,10 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
           <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-t-[3rem] shadow-2xl p-8 animate-slide-up">
             <div className="w-16 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-8" />
             <h2 className="text-2xl font-black mb-8 dark:text-white flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary text-3xl">add_card</span>
-              Nova Despesa Fixa
+              <span className="material-symbols-outlined text-primary text-3xl">
+                {editingExpId ? 'edit_note' : 'add_card'}
+              </span>
+              {editingExpId ? 'Editar Despesa' : 'Nova Despesa Fixa'}
             </h2>
 
             <form onSubmit={handleAddExpenseSubmit} className="space-y-6">
@@ -439,7 +471,11 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
               <div className="pt-6 flex gap-4">
                 <button
                   type="button"
-                  onClick={() => setIsAddingExpense(false)}
+                  onClick={() => {
+                    setIsAddingExpense(false);
+                    setEditingExpId(null);
+                    setNewExp({ category: 'Outros', description: '', amount: '' });
+                  }}
                   className="flex-1 py-5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-black rounded-2xl uppercase text-xs tracking-widest active:scale-95 transition-all"
                 >
                   Cancelar
@@ -448,7 +484,7 @@ const Financeiro: React.FC<FinanceiroProps> = ({ orders, expenses, onAddExpense,
                   type="submit"
                   className="flex-[2] py-5 bg-danger text-white font-black rounded-2xl shadow-xl shadow-danger/20 uppercase text-xs tracking-widest active:scale-95 transition-all"
                 >
-                  Adicionar Despesa
+                  {editingExpId ? 'Salvar Alterações' : 'Adicionar Despesa'}
                 </button>
               </div>
             </form>

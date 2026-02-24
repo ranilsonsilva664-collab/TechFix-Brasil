@@ -161,6 +161,16 @@ export const dbService = {
         }
     },
 
+    updateExpense: async (userId: string, id: string, updates: Partial<FixedExpense>) => {
+        try {
+            const docRef = doc(db, "users", userId, EXPENSES_COL, id);
+            return await updateDoc(docRef, cleanData(updates));
+        } catch (error) {
+            console.error("Error updating expense:", error);
+            throw error;
+        }
+    },
+
     deleteExpense: async (userId: string, id: string) => {
         const docRef = doc(db, "users", userId, EXPENSES_COL, id);
         return deleteDoc(docRef);

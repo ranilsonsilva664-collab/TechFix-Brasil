@@ -312,6 +312,17 @@ const App: React.FC = () => {
     }
   };
 
+  const handleUpdateExpense = async (id: string, updates: Partial<FixedExpense>) => {
+    if (!userId) return;
+    try {
+      await dbService.updateExpense(userId, id, updates);
+    } catch (err: any) {
+      console.error("Failed to update expense:", err);
+      alert(`Erro ao atualizar despesa: ${err.message}`);
+      setGlobalError(`Erro ao atualizar despesa: ${err.message}`);
+    }
+  };
+
   // Technician Handlers
   const handleAddTechnician = async (name: string) => {
     if (!userId) return;
@@ -352,7 +363,7 @@ const App: React.FC = () => {
                 <div className="flex-1 flex flex-col max-w-md mx-auto w-full relative">
                   <Routes>
                     <Route path="/" element={<Dashboard orders={serviceOrders} expenses={fixedExpenses} onOpenNewOS={() => setIsNewOSOpen(true)} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
-                    <Route path="/financeiro" element={<Financeiro orders={serviceOrders} expenses={fixedExpenses} onAddExpense={handleAddExpense} onRemoveExpense={handleRemoveExpense} onDeleteOS={handleDeleteOS} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
+                    <Route path="/financeiro" element={<Financeiro orders={serviceOrders} expenses={fixedExpenses} onAddExpense={handleAddExpense} onRemoveExpense={handleRemoveExpense} onUpdateExpense={handleUpdateExpense} onDeleteOS={handleDeleteOS} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
                     <Route path="/kanban" element={<Kanban orders={serviceOrders} onDeleteOS={handleDeleteOS} onOpenNewOS={() => setIsNewOSOpen(true)} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
                     <Route path="/clientes" element={<Clientes customers={customers} orders={serviceOrders} onUpdateCustomer={handleUpdateCustomer} onDeleteCustomer={handleDeleteCustomer} onDeleteOS={handleDeleteOS} onAddCustomer={handleAddCustomer} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
                     <Route path="/estoque" element={<Estoque items={inventory} onAddItem={handleAddItem} onDeleteItem={handleDeleteItem} onToggleTheme={toggleTheme} onLogout={handleLogout} isDarkMode={isDarkMode} userPlan={userProfile?.plan} />} />
